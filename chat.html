@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chat IA con IShowSpeed</title>
+<meta name="description" content="Habla con la IA de IShowSpeed: pregúntale sobre sus streams, viajes, momentos épicos y más.">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@300;400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+  .page-header { padding:8rem 2rem 2rem; text-align:center; }
+  .page-header h1 { font-family:'Bebas Neue',sans-serif; font-size:64px; color:var(--oro); text-shadow:var(--glow-oro); }
+  .chat-section { padding:2rem; }
+  .chat-container { max-width:900px; margin:0 auto; background:var(--gris); border:1px solid rgba(0,245,255,0.3); border-radius:24px; overflow:hidden; box-shadow:0 30px 60px rgba(0,0,0,0.6); display:flex; flex-direction:column; }
+  .chat-header { background:rgba(0,245,255,0.1); padding:1.5rem 2rem; display:flex; align-items:center; gap:1rem; border-bottom:1px solid rgba(0,245,255,0.2); }
+  .chat-avatar { width:60px; height:60px; border-radius:50%; border:3px solid var(--oro); object-fit:cover; box-shadow:var(--glow-oro); }
+  .chat-status { font-size:12px; color:#4caf50; display:flex; align-items:center; gap:5px; }
+  .chat-status::before { content:''; width:8px; height:8px; background:#4caf50; border-radius:50%; }
+  .chat-messages { height:400px; overflow-y:auto; padding:2rem; display:flex; flex-direction:column; gap:1.5rem; }
+  .message { max-width:75%; padding:1.2rem 1.6rem; border-radius:20px; font-size:16px; line-height:1.6; animation:slide 0.4s ease; }
+  @keyframes slide { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+  .message.speed { align-self:flex-start; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); border-bottom-left-radius:4px; }
+  .message.user { align-self:flex-end; background:linear-gradient(135deg,var(--oro),#00d4ff); color:#000; border-bottom-right-radius:4px; font-weight:500; }
+  .typing-indicator { display:none; align-self:flex-start; background:rgba(255,255,255,0.05); padding:1rem 1.5rem; border-radius:20px; gap:5px; }
+  .dot { width:8px; height:8px; background:var(--oro); border-radius:50%; animation:bounce 1.4s infinite; }
+  .dot:nth-child(2){animation-delay:.2s;} .dot:nth-child(3){animation-delay:.4s;}
+  @keyframes bounce { 0%,80%,100%{transform:scale(0);} 40%{transform:scale(1);} }
+  .chat-suggestions { padding:1rem 2rem; display:flex; gap:.8rem; flex-wrap:wrap; background:rgba(0,0,0,0.1); }
+  .suggestion-btn { background:rgba(255,255,255,0.05); border:1px solid rgba(0,245,255,0.3); color:var(--oro); padding:8px 16px; border-radius:20px; font-size:13px; cursor:pointer; transition:var(--transition); }
+  .suggestion-btn:hover { background:var(--oro); color:#000; }
+  .chat-input-area { padding:1.5rem 2rem; display:flex; gap:1rem; background:rgba(0,0,0,0.3); }
+  .chat-input { flex:1; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); padding:15px 25px; border-radius:30px; color:#fff; font-size:16px; outline:none; }
+  .chat-send { background:var(--oro); border:none; width:55px; height:55px; border-radius:50%; cursor:pointer; font-size:20px; }
+</style>
+</head>
+<body>
+<nav>
+  <a href="index.html" class="nav-logo">SPEED PRO</a>
+  <ul class="nav-links">
+    <li><a href="index.html">Inicio</a></li>
+    <li><a href="chat.html" class="active">Chat IA</a></li>
+    <li><a href="galeria.html">Galería</a></li>
+  </ul>
+  <button onclick="document.body.classList.toggle('light-mode')" style="background:none;border:none;cursor:pointer;font-size:22px;">🌓</button>
+</nav>
+
+<header class="page-header">
+  <h1>CHAT CON SPEED</h1>
+  <p style="color:var(--oro);font-style:italic;">Pregúntale lo que quieras al fenómeno global</p>
+</header>
+
+<section class="chat-section">
+  <div class="chat-container">
+    <div class="chat-header">
+      <img src="images/avatar.jpg" alt="Speed" class="chat-avatar">
+      <div>
+        <h3 style="font-family:'Bebas Neue',sans-serif;color:var(--oro);font-size:24px;">IShowSpeed</h3>
+        <div class="chat-status">Activo ahora</div>
+      </div>
+    </div>
+    <div class="chat-messages" id="chatMessages">
+      <div class="message speed">¡Yo, yo, yo! Soy IShowSpeed. ¿Quieres hablar sobre mis streams, mis viajes o mis momentos épicos? ¡SEWEY! 🔥</div>
+    </div>
+    <div class="typing-indicator" id="typingIndicator"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+    <div class="chat-suggestions">
+      <button class="suggestion-btn" onclick="quickQuestion('¿Cuál fue tu momento más épico?')">¿Momento épico?</button>
+      <button class="suggestion-btn" onclick="quickQuestion('¿Cómo empezó tu carrera?')">¿Cómo empezaste?</button>
+      <button class="suggestion-btn" onclick="quickQuestion('¿Cuántos suscriptores tienes?')">¿Suscriptores?</button>
+      <button class="suggestion-btn" onclick="quickQuestion('¿Cuál fue tu país favorito del tour?')">¿País favorito?</button>
+      <button class="suggestion-btn" onclick="quickQuestion('¿Cómo te sentiste al conocer a Cristiano Ronaldo?')">¿Conocer a CR7?</button>
+    </div>
+    <div class="chat-input-area">
+      <input type="text" id="userInput" class="chat-input" placeholder="Escribe un mensaje...">
+      <button class="chat-send" onclick="sendMessage()">➤</button>
+    </div>
+  </div>
+
+  <div class="page-cta">
+    <a href="index.html" class="btn btn-secondary">← Inicio</a>
+    <a href="galeria.html" class="btn btn-primary">Ver el momento CR7 →</a>
+  </div>
+</section>
+
+<footer>
+  <p style="font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--oro);">ISHOWSPEED – FENÓMENO GLOBAL</p>
+  <div class="links">
+    <a href="index.html">Inicio</a><a href="chat.html">Chat IA</a><a href="galeria.html">Galería</a>
+  </div>
+</footer>
+
+<script>
+  const chatMessages = document.getElementById('chatMessages');
+  const typingIndicator = document.getElementById('typingIndicator');
+  const userInput = document.getElementById('userInput');
+  function quickQuestion(t){ userInput.value=t; sendMessage(); }
+  function sendMessage(){
+    const text = userInput.value.trim(); if(!text) return;
+    addMessage(text,'user'); userInput.value='';
+    typingIndicator.style.display='flex'; chatMessages.scrollTop=chatMessages.scrollHeight;
+    setTimeout(()=>{ typingIndicator.style.display='none'; addMessage(getSpeedResponse(text),'speed'); },1300);
+  }
+  function addMessage(text,sender){
+    const div=document.createElement('div'); div.className='message '+sender;
+    if(sender==='speed' && /cristiano|ronaldo|cr7/i.test(text)){
+      div.innerHTML = text + ' <a href="galeria.html#cr7" style="color:var(--oro);text-decoration:underline;">Ver el clip aquí →</a>';
+    } else { div.textContent=text; }
+    chatMessages.appendChild(div); chatMessages.scrollTop=chatMessages.scrollHeight;
+  }
+  function getSpeedResponse(q){
+    q=q.toLowerCase();
+    if(q.includes('épico')||q.includes('momento')) return "¡Bro! Mis viajes a diferentes países han sido SEWEY. Cada stream es una aventura nueva. ¡Dios es bueno! 🙏";
+    if(q.includes('empez')||q.includes('carrera')) return "Comencé en 2016 en YouTube, hermano. ¡Ahora tengo 45M en TikTok! ¡SEWEY!";
+    if(q.includes('suscriptor')) return "¡53 millones en mi canal principal de YouTube! La comunidad es INSANA.";
+    if(q.includes('dios')||q.includes('religión')) return "¡Dios es bueno! Esa es mi filosofía. 🙏";
+    if(q.includes('país')||q.includes('pais')||q.includes('tour')||q.includes('favorito')) return "¡Bro, Japón fue mi país favorito! La cultura, la comida, los fans... ¡INSANO! Brasil y Marruecos también épicos. 🌍🔥";
+    if(q.includes('cristiano')||q.includes('ronaldo')||q.includes('cr7')) return "¡BROOO! Conocer a CR7 fue el mejor momento de mi VIDA. ¡Lloré, grité, casi me desmayo! ¡SUUUIIII! 🐐⚽";
+    if(q.includes('sewey')) return "¡SEWEY! Mi lema, bro. ¡Algo épico, increíble, de otro nivel!";
+    return "¡Buena pregunta! Mi vida es una aventura constante. ¿Quieres saber algo más?";
+  }
+  userInput.addEventListener('keypress',(e)=>{ if(e.key==='Enter') sendMessage(); });
+</script>
+</body>
+</html>
